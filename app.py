@@ -47,7 +47,24 @@ footer {
 header {
     visibility: hidden;
 }
+/* Pull entire app upward */
+.block-container {
+    padding-top: 0rem !important;
+    margin-top: -55px !important;
+}
 
+/* Hide Streamlit chrome */
+header[data-testid="stHeader"] {
+    display: none;
+}
+
+div[data-testid="stToolbar"] {
+    display: none;
+}
+
+div[data-testid="stDecoration"] {
+    display: none;
+}
 </style>
 """, unsafe_allow_html=True)
 
