@@ -12,6 +12,7 @@ import os
 import base64
 import time
 import streamlit.components.v1 as components
+import sqlite3
 from datetime import datetime, timedelta
 from db import init_db
 from syllabus import get_course_syllabus
