@@ -1,0 +1,15 @@
+[theme]
+
+primaryColor = "#facc15"             # Rich Purple
+backgroundColor = "#0c0c14"         # Graphite Black
+secondaryBackgroundColor = "#1b1b2b" # Soft Dark Violet
+textColor = "#e2e8f0"
+font = "Fira Code"
+
+[server]
+headless = true
+enableCORS = false
+enableXsrfProtection = true
+
+[browser]
+gatherUsageStats = false
