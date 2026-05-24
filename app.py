@@ -19,6 +19,7 @@ from syllabus import get_course_syllabus
 from utils import extract_pdf_text
 from email.mime.text import MIMEText
 from db import conn, cursor
+from zoneinfo import ZoneInfo
 
 BASE_URL = st.secrets["BASE_URL"]
 EMAIL_SENDER = st.secrets["EMAIL_SENDER"]
@@ -48,6 +49,7 @@ footer {
 header {
     visibility: hidden;
 }
+
 /* Pull entire app upward */
 .block-container {
     padding-top: 0rem !important;
@@ -66,8 +68,10 @@ div[data-testid="stToolbar"] {
 div[data-testid="stDecoration"] {
     display: none;
 }
+
 </style>
 """, unsafe_allow_html=True)
+
 
 # ============================================================
 # GLOBAL STYLES — matches config.toml theme
@@ -75,6 +79,7 @@ div[data-testid="stDecoration"] {
 st.markdown("""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&display=swap');
+
 /* ── Base resets ─────────────────────────────────────────── */
 html, body, [class*="css"] {
     font-family: 'Fira Code', monospace !important;
@@ -1003,6 +1008,14 @@ if IS_STUDENT and st.session_state.page != "📝 Student Test":
     st.session_state.page = "📝 Student Test"
 
 # -----------------------------
+# HARD BLOCK IST TIME
+# -----------------------------
+IST = ZoneInfo("Asia/Kolkata")
+
+def now_ist():
+    return datetime.now(IST)
+
+# -----------------------------
 # OPENAI SETUP
 # -----------------------------
 @st.cache_resource
@@ -1534,8 +1547,8 @@ elif st.session_state.page == "🧪 Test Notification":
         # ============================================================
         public_test_id = str(uuid.uuid4())
 
-        start = start_time
-        end = start_time + timedelta(minutes=10)
+        start = start_time.replace(tzinfo=IST)
+        end = start + timedelta(minutes=10)
 
         # ✅ REAL DB TEST ID
         db_test_id = cursor.lastrowid
@@ -1709,9 +1722,16 @@ elif st.session_state.page == "📝 Student Test":
 
     # ---- TIME CONVERSION ----
     start_time = datetime.fromisoformat(start_time)
+
+    if start_time.tzinfo is None:
+        start_time = start_time.replace(tzinfo=IST)
+
     end_time = datetime.fromisoformat(end_time)
 
-    now = datetime.now()
+    if end_time.tzinfo is None:
+        end_time = end_time.replace(tzinfo=IST)
+
+    now = now_ist()
 
     # ---- TIME VALIDATION ----
     if now < start_time:
@@ -1788,7 +1808,7 @@ elif st.session_state.page == "📝 Student Test":
     # ============================================================
     else:
 
-        remaining = int((end_time - datetime.now()).total_seconds())
+        remaining = int((end_time - now_ist()).total_seconds())
 
         auto_submit = remaining <= 0
 
@@ -1863,7 +1883,7 @@ elif st.session_state.page == "📝 Student Test":
                     score,
                     total,
                     json.dumps(st.session_state.student_answers),
-                    datetime.now().isoformat()
+                    now_ist().isoformat()
                 ))
 
                 conn.commit()
@@ -1968,7 +1988,10 @@ elif st.session_state.page == "📊 Test Results":
                 test["end_time"]
             )
 
-            if datetime.now() <= end_dt + timedelta(hours=24):
+            if end_dt.tzinfo is None:
+                end_dt = end_dt.replace(tzinfo=IST)
+
+            if now_ist() <= end_dt + timedelta(hours=24):
                 latest_valid_test = test
                 break
 
