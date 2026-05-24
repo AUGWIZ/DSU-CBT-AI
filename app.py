@@ -1524,7 +1524,23 @@ elif st.session_state.page == "🧪 Test Notification":
 
     st.markdown('<p class="section-heading">⏰ Schedule Test</p>', unsafe_allow_html=True)
 
-    start_time = st.datetime_input("Start Time")
+    now = now_ist()
+
+    test_date = st.date_input(
+        "Test Date",
+        value=now.date()
+    )
+    
+    test_time = st.time_input(
+        "Start Time",
+        value=now.time()
+    )
+    
+    start_time = datetime.combine(
+        test_date,
+        test_time,
+        tzinfo=IST
+    )
 
     st.markdown("<br>", unsafe_allow_html=True)
 
